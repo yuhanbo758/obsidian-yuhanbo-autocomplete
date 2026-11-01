@@ -1,0 +1,137 @@
+import type { MatchStrategy } from "../provider/MatchStrategy";
+
+export class ProviderStatusBar {
+  constructor(
+    public currentFile: HTMLElement | null,
+    public currentVault: HTMLElement | null,
+    public customDictionary: HTMLElement | null,
+    public internalLink: HTMLElement | null,
+    public frontMatter: HTMLElement | null,
+    public matchStrategy: HTMLElement | null,
+    public complementAutomatically: HTMLElement | null,
+  ) {}
+
+  static new(
+    statusBar: HTMLElement,
+    showMatchStrategy: boolean,
+    showIndexingStatus: boolean,
+    showComplementAutomatically: boolean,
+  ): ProviderStatusBar {
+    const currentFile = showIndexingStatus
+      ? statusBar.createEl("span", {
+          text: "---",
+          cls: "various-complements__footer various-complements__footer__current-file",
+        })
+      : null;
+    const currentVault = showIndexingStatus
+      ? statusBar.createEl("span", {
+          text: "---",
+          cls: "various-complements__footer various-complements__footer__current-vault",
+        })
+      : null;
+    const customDictionary = showIndexingStatus
+      ? statusBar.createEl("span", {
+          text: "---",
+          cls: "various-complements__footer various-complements__footer__custom-dictionary",
+        })
+      : null;
+    const internalLink = showIndexingStatus
+      ? statusBar.createEl("span", {
+          text: "---",
+          cls: "various-complements__footer various-complements__footer__internal-link",
+        })
+      : null;
+    const frontMatter = showIndexingStatus
+      ? statusBar.createEl("span", {
+          text: "---",
+          cls: "various-complements__footer various-complements__footer__front-matter",
+        })
+      : null;
+
+    const matchStrategy = showMatchStrategy
+      ? statusBar.createEl("span", {
+          text: "---",
+          cls: "various-complements__footer various-complements__footer__match-strategy",
+        })
+      : null;
+
+    const complementAutomatically = showComplementAutomatically
+      ? statusBar.createEl("span", {
+          text: "---",
+          cls: "various-complements__footer various-complements__footer__complement-automatically",
+        })
+      : null;
+
+    return new ProviderStatusBar(
+      currentFile,
+      currentVault,
+      customDictionary,
+      internalLink,
+      frontMatter,
+      matchStrategy,
+      complementAutomatically,
+    );
+  }
+
+  setOnClickStrategyListener(listener: () => void) {
+    this.matchStrategy?.addEventListener("click", listener);
+  }
+  setOnClickComplementAutomatically(listener: () => void) {
+    this.complementAutomatically?.addEventListener("click", listener);
+  }
+
+  setCurrentFileDisabled() {
+    this.currentFile?.setText("---");
+  }
+  setCurrentVaultDisabled() {
+    this.currentVault?.setText("---");
+  }
+  setCustomDictionaryDisabled() {
+    this.customDictionary?.setText("---");
+  }
+  setInternalLinkDisabled() {
+    this.internalLink?.setText("---");
+  }
+  setFrontMatterDisabled() {
+    this.frontMatter?.setText("---");
+  }
+
+  setCurrentFileIndexing() {
+    this.currentFile?.setText("索引中…");
+  }
+  setCurrentVaultIndexing() {
+    this.currentVault?.setText("索引中…");
+  }
+  setCustomDictionaryIndexing() {
+    this.customDictionary?.setText("索引中…");
+  }
+  setInternalLinkIndexing() {
+    this.internalLink?.setText("索引中…");
+  }
+  setFrontMatterIndexing() {
+    this.frontMatter?.setText("索引中…");
+  }
+
+  setCurrentFileIndexed(count: number) {
+    this.currentFile?.setText(String(count));
+  }
+  setCurrentVaultIndexed(count: number) {
+    this.currentVault?.setText(String(count));
+  }
+  setCustomDictionaryIndexed(count: number) {
+    this.customDictionary?.setText(String(count));
+  }
+  setInternalLinkIndexed(count: number) {
+    this.internalLink?.setText(String(count));
+  }
+  setFrontMatterIndexed(count: number) {
+    this.frontMatter?.setText(String(count));
+  }
+
+  setMatchStrategy(strategy: MatchStrategy) {
+    this.matchStrategy?.setText(strategy.name === "prefix" ? "前缀" : "部分");
+  }
+  setComplementAutomatically(automatically: boolean) {
+    this.complementAutomatically?.setText(automatically ? "自动" : "手动");
+  }
+}
