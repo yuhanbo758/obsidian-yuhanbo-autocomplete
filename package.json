@@ -1,6 +1,6 @@
 {
 	"name": "yuhanbo-autocomplete",
-	"version": "1.0.7",
+	"version": "1.0.8",
 	"description": "中文优先的 Obsidian 自动补全插件",
 	"main": "main.js",
 	"scripts": {
