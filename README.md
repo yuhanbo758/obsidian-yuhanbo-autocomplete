@@ -2,7 +2,7 @@
 
 中文优先的 Obsidian 自动补全插件，支持当前笔记、全库词项、笔记链接、属性、自定义词库与补全历史。设置页面默认中文，随包提供 1,143 条中文词语和 215 条英文技术词。
 
-本项目基于 [Various Complements](https://github.com/tadashi-aikawa/obsidian-various-complements-plugin) 11.4.2（提交 ed7c6793ed6d2cd82ab5d746ab7cbd6c2c402918）修改，保留原作者 tadashi-aikawa 的 MIT 许可和署名。这是独立维护的派生版本，不是 Obsidian 官方产品。尚未获得社区目录针对派生项目的上架授权，不宣称已在社区市场发布。
+本项目基于 [Various Complements](https://github.com/tadashi-aikawa/obsidian-various-complements-plugin) 11.4.2（提交 ed7c6793ed6d2cd82ab5d746ab7cbd6c2c402918）修改，保留原作者 tadashi-aikawa 的 MIT 许可和署名。这是独立维护的派生版本，不是 Obsidian 官方产品。原作者已[公开书面同意本派生插件提交并上架 Obsidian 社区目录](https://github.com/tadashi-aikawa/obsidian-various-complements-plugin/issues/388#issuecomment-6891400600)；授权与社区审核、实际收录为不同状态。
 
 ## 使用
 

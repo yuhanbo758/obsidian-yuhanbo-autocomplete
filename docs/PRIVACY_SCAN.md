@@ -10,4 +10,4 @@
 
 ## 社区市场状态
 
-本项目是 Various Complements 的派生版本，目前没有原作者可公开核验的书面授权，因此没有提交社区市场。GitHub 开源和发布 Release 不代表社区收录。政策依据：https://docs.obsidian.md/community-directory/developer-policies 。
+本项目是 Various Complements 的派生版本。首次发布检查时尚无原作者书面授权；截至 2026-11-16，已核验原作者 tadashi-aikawa 的[公开授权回复](https://github.com/tadashi-aikawa/obsidian-various-complements-plugin/issues/388#issuecomment-6891400600)，明确同意提交并上架 Obsidian 社区目录。GitHub 开源、作者授权、社区审核和客户端收录是不同状态。政策依据：https://docs.obsidian.md/community-directory/developer-policies 。
