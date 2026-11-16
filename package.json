@@ -1,6 +1,6 @@
 {
 	"name": "yuhanbo-autocomplete",
-	"version": "1.0.8",
+	"version": "1.0.9",
 	"description": "中文优先的 Obsidian 自动补全插件",
 	"main": "main.js",
 	"scripts": {
@@ -41,7 +41,7 @@
 	"dependencies": {
 		"chinese-tokenizer": "github:tadashi-aikawa/chinese-tokenizer",
 		"emoji-regex": "10.6.0",
-		"minimatch": "10.2.6",
+		"minimatch": "11.0.8",
 		"svelte-lucide-icons": "0.6.0",
 		"ts-deepmerge": "8.0.0"
 	},

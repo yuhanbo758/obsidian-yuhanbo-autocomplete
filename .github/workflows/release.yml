@@ -73,6 +73,7 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/security-scan.py . --severity high --no-color
+          pnpm audit --prod --audit-level high
           pnpm verify
           node --check main.js
           git diff --check

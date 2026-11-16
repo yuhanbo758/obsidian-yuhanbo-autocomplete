@@ -19,5 +19,6 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: python scripts/security-scan.py . --severity high --no-color
+      - run: pnpm audit --prod --audit-level high
       - run: pnpm verify
       - run: node --check main.js

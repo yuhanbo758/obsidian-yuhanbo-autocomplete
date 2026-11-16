@@ -1,7 +1,7 @@
 {
 	"id": "autocomplete",
 	"name": "yuhanbo-autocomplete",
-	"version": "1.0.8",
+	"version": "1.0.9",
 	"minAppVersion": "1.11.4",
 	"description": "Complete Chinese and English words, note links, and custom phrases offline.",
 	"author": "Yuhanbo Yu",
