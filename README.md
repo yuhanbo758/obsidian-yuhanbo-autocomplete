@@ -1,5 +1,19 @@
 # yuhanbo-autocomplete
 
+## English overview
+
+Chinese-first, offline autocomplete for Obsidian 1.11.4 or later. Suggestions come from the current note, a vault-wide word index, note links, properties, custom dictionaries, and completion history. The bundled vocabulary contains 1,143 Chinese entries and 215 English technical terms. Settings and commands are in Chinese by default.
+
+Type a prefix and select a suggestion: for example, `提示` can suggest `提示词`, and `autoc` can suggest `autocomplete`. Chinese IME composition pauses suggestions until text is committed, including whole-phrase commits. Background indexing yields while you type.
+
+For manual installation, download `main.js`, `manifest.json`, and `styles.css` from the latest GitHub Release, place them in your vault's `.obsidian/plugins/autocomplete` directory, then enable the plugin. Existing custom installation directories are also supported. Enable only one autocomplete plugin at a time.
+
+**Privacy and network use:** Completion runs locally by default, with no telemetry, AI service, account, payment, or note uploads. The vault index enumerates file paths and reads eligible notes through the Obsidian API. Settings and completion history stay in the vault's plugin directory; personal dictionaries and history are not included in this repository. Optional CEDICT dictionaries are read from within the vault. A remote dictionary is downloaded through Obsidian's `requestUrl` only when the user configures and enables its URL; that server receives the download request. The explicit **Copy plugin settings** command writes settings to the system clipboard; the plugin does not read clipboard contents.
+
+**License and attribution:** This is an independently maintained derivative of [Various Complements](https://github.com/tadashi-aikawa/obsidian-various-complements-plugin) 11.4.2 by tadashi-aikawa. The original MIT license and attribution are retained. The original author has [publicly approved submission and listing of this derivative in the Obsidian Community directory](https://github.com/tadashi-aikawa/obsidian-various-complements-plugin/issues/388#issuecomment-6891400600). Publication and automated review are separate from this permission. Mobile APIs are supported, but a full Android/iOS device and IME test matrix has not been completed.
+
+## 中文说明
+
 中文优先的 Obsidian 自动补全插件，支持当前笔记、全库词项、笔记链接、属性、自定义词库与补全历史。设置页面默认中文，随包提供 1,143 条中文词语和 215 条英文技术词。
 
 本项目基于 [Various Complements](https://github.com/tadashi-aikawa/obsidian-various-complements-plugin) 11.4.2（提交 ed7c6793ed6d2cd82ab5d746ab7cbd6c2c402918）修改，保留原作者 tadashi-aikawa 的 MIT 许可和署名。这是独立维护的派生版本，不是 Obsidian 官方产品。原作者已[公开书面同意本派生插件提交并上架 Obsidian 社区目录](https://github.com/tadashi-aikawa/obsidian-various-complements-plugin/issues/388#issuecomment-6891400600)；授权与社区审核、实际收录为不同状态。
@@ -17,6 +31,8 @@
 默认全部补全在本地完成，无遥测、无 AI API、无账户或付费要求，不上传笔记，不访问库外文件。设置和历史保存在当前库插件目录中；仓库不附带个人设置、补全历史或用户词库。
 
 只有用户明确配置并启用远程词库 URL 时才通过 Obsidian requestUrl 下载，所配置的服务器会收到该下载请求；请求设置超时。可选 CEDICT 文件只从当前笔记库读取。
+
+全库补全会通过 Obsidian API 枚举库内文件路径、读取符合配置的笔记以建立本地索引。仅在用户主动执行“复制插件设置”命令时，将插件设置写入系统剪贴板；插件不读取剪贴板内容。
 
 ## 开发与发布
 

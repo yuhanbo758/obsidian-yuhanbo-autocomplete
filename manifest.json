@@ -1,7 +1,7 @@
 {
 	"id": "autocomplete",
 	"name": "yuhanbo-autocomplete",
-	"version": "1.0.6",
+	"version": "1.0.7",
 	"minAppVersion": "1.11.4",
 	"description": "以中文为主、英文为辅，离线补全词语、笔记链接和自定义短语.",
 	"author": "Yuhanbo Yu",
