@@ -104,7 +104,7 @@ export class AutoCompleteSuggest
   private disposed = false;
   private defaultHistoryPath: string;
   private inputActivity: EditorInputActivity;
-  private compositionResumeTimer?: ReturnType<typeof setTimeout>;
+  private compositionResumeTimer?: ReturnType<typeof window.setTimeout>;
   private backgroundVersions = new Map<string, number>();
   private metadataSignatures = new Map<
     string,
@@ -121,6 +121,7 @@ export class AutoCompleteSuggest
   runManually: boolean;
   completionMode: "prefix" | "partial" | "new";
   selectionLock = false;
+  private selectionLockBody?: HTMLElement;
   declare isOpen: boolean;
 
   contextStartCh: number;
@@ -165,12 +166,19 @@ export class AutoCompleteSuggest
         this.completionMode === "prefix" ? "partial" : "new";
     }
 
-    // XXX: Unsafe
-    (this as any).trigger(editor, activeFile, true);
+    this.triggerInEditor(editor, activeFile);
+  }
+
+  private triggerInEditor(editor: Editor, file: TFile): void {
+    // Obsidian 当前没有公开的手动触发接口，缺少该入口时安全跳过。
+    const suggest = this as AutoCompleteSuggest & {
+      trigger?: (editor: Editor, file: TFile, force: boolean) => void;
+    };
+    suggest.trigger?.(editor, file, true);
   }
 
   hideCompletion() {
-    clearTimeout(this.compositionResumeTimer);
+    window.clearTimeout(this.compositionResumeTimer);
     this.compositionResumeTimer = undefined;
     this.suggestionRequest?.cancel();
     this.close();
@@ -257,7 +265,8 @@ export class AutoCompleteSuggest
       true,
     );
     ins.modifyEventRef = app.vault.on("modify", (file) => {
-      if (ins.appHelper.isActiveFile(file as TFile)) ins.refreshActiveFile();
+      if (file instanceof TFile && ins.appHelper.isActiveFile(file))
+        ins.refreshActiveFile();
       if (file.path.endsWith(".md")) ins.refreshVault();
       if (ins.selectionHistoryStorage?.shouldPersist) {
         onPersistSelectionHistory();
@@ -325,7 +334,7 @@ export class AutoCompleteSuggest
   }
 
   pauseForComposition(): void {
-    clearTimeout(this.compositionResumeTimer);
+    window.clearTimeout(this.compositionResumeTimer);
     this.compositionResumeTimer = undefined;
     if (!this.settings.disableSuggestionsDuringImeOn) return;
     this.suggestionRequest?.cancel();
@@ -335,7 +344,7 @@ export class AutoCompleteSuggest
   }
 
   resumeAfterComposition(): void {
-    clearTimeout(this.compositionResumeTimer);
+    window.clearTimeout(this.compositionResumeTimer);
     this.compositionResumeTimer = undefined;
     if (!this.settings.disableSuggestionsDuringImeOn) return;
     const editor = this.appHelper.getCurrentEditor();
@@ -354,7 +363,7 @@ export class AutoCompleteSuggest
       // compositionend 与编辑器的最终事务可能分属不同任务，短暂等待公共组词状态归位。
       if (this.shouldPauseForIme(editor)) {
         if (attempt < 20)
-          this.compositionResumeTimer = setTimeout(
+          this.compositionResumeTimer = window.setTimeout(
             () => resume(attempt + 1),
             25,
           );
@@ -362,13 +371,9 @@ export class AutoCompleteSuggest
       }
       this.completionMode = this.matchStrategy.name;
       this.runManually = false;
-      (
-        this as unknown as {
-          trigger(editor: Editor, file: TFile, force: boolean): void;
-        }
-      ).trigger(editor, file, true);
+      this.triggerInEditor(editor, file);
     };
-    this.compositionResumeTimer = setTimeout(() => resume(0), 50);
+    this.compositionResumeTimer = window.setTimeout(() => resume(0), 50);
   }
 
   private async backgroundReady(kind: string): Promise<boolean> {
@@ -537,7 +542,7 @@ export class AutoCompleteSuggest
   unregister() {
     this.disposed = true;
     this.inputActivity.dispose();
-    clearTimeout(this.compositionResumeTimer);
+    window.clearTimeout(this.compositionResumeTimer);
     this.suggestionRequest?.cancel();
     this.debounceClose?.cancel();
     this.refreshActiveFile?.cancel();
@@ -915,11 +920,12 @@ export class AutoCompleteSuggest
           // For restore the context of suggestions to insert editor after submitted input
           this.spareEditorSuggestContext = this.context;
 
-          commands.selectWithCustomAlias(this, evt).then((item) => {
-            if (item) {
-              this.selectSuggestion(item);
-            }
-          });
+          void commands
+            .selectWithCustomAlias(this, evt)
+            .then((item) => {
+              if (item) this.selectSuggestion(item);
+            })
+            .catch(() => new Notice("无法插入自定义别名。"));
           return false;
         },
       ],
@@ -929,13 +935,12 @@ export class AutoCompleteSuggest
           // For restore the context of suggestions to insert editor after submitted input
           this.spareEditorSuggestContext = this.context;
 
-          commands
+          void commands
             .selectWithCustomAliasAndAddToAliases(this, evt)
             .then((item) => {
-              if (item) {
-                this.selectSuggestion(item);
-              }
-            });
+              if (item) this.selectSuggestion(item);
+            })
+            .catch(() => new Notice("无法保存或插入自定义别名。"));
           return false;
         },
       ],
@@ -1639,10 +1644,6 @@ export class AutoCompleteSuggest
     }
 
     this.selectionHistoryStorage?.increment(word as HitWord);
-    if (this.settings.showLogAboutPerformanceInConsole) {
-      console.log("[Autocomplete] 补全历史已更新");
-    }
-
     this.close();
     this.debounceClose(
       editor,
@@ -1660,12 +1661,10 @@ export class AutoCompleteSuggest
   setSelectionLock(lock: boolean) {
     this.selectionLock = lock;
     const lockClass = "various-complements__selection-lock";
-
-    const body = document.querySelector("body")!;
-    if (lock) {
-      body.addClass(lockClass);
-    } else {
-      body.removeClass(lockClass);
-    }
+    const nextBody = lock ? activeDocument.body : undefined;
+    if (nextBody === this.selectionLockBody) return;
+    this.selectionLockBody?.removeClass(lockClass);
+    this.selectionLockBody = nextBody;
+    nextBody?.addClass(lockClass);
   }
 }

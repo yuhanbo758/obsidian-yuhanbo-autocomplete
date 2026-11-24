@@ -18,45 +18,45 @@ export class ProviderStatusBar {
     showComplementAutomatically: boolean,
   ): ProviderStatusBar {
     const currentFile = showIndexingStatus
-      ? statusBar.createEl("span", {
+      ? statusBar.createSpan({
           text: "---",
           cls: "various-complements__footer various-complements__footer__current-file",
         })
       : null;
     const currentVault = showIndexingStatus
-      ? statusBar.createEl("span", {
+      ? statusBar.createSpan({
           text: "---",
           cls: "various-complements__footer various-complements__footer__current-vault",
         })
       : null;
     const customDictionary = showIndexingStatus
-      ? statusBar.createEl("span", {
+      ? statusBar.createSpan({
           text: "---",
           cls: "various-complements__footer various-complements__footer__custom-dictionary",
         })
       : null;
     const internalLink = showIndexingStatus
-      ? statusBar.createEl("span", {
+      ? statusBar.createSpan({
           text: "---",
           cls: "various-complements__footer various-complements__footer__internal-link",
         })
       : null;
     const frontMatter = showIndexingStatus
-      ? statusBar.createEl("span", {
+      ? statusBar.createSpan({
           text: "---",
           cls: "various-complements__footer various-complements__footer__front-matter",
         })
       : null;
 
     const matchStrategy = showMatchStrategy
-      ? statusBar.createEl("span", {
+      ? statusBar.createSpan({
           text: "---",
           cls: "various-complements__footer various-complements__footer__match-strategy",
         })
       : null;
 
     const complementAutomatically = showComplementAutomatically
-      ? statusBar.createEl("span", {
+      ? statusBar.createSpan({
           text: "---",
           cls: "various-complements__footer various-complements__footer__complement-automatically",
         })

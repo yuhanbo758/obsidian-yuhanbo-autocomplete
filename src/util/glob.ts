@@ -11,7 +11,7 @@ export function isMatchedGlobPatterns(
   try {
     return patterns.some((p) => minimatch(path, p));
   } catch (error) {
-    console.warn(`Invalid glob pattern detected: ${error}`);
+    console.warn("Invalid glob pattern detected", error);
     return false;
   }
 }

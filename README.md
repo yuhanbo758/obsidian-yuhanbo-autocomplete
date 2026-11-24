@@ -46,7 +46,7 @@ python scripts/security-scan.py . --severity high --no-color
 
 自动发布工作流会在 main 上有插件代码变更时构建、测试并生成 GitHub Release；纯文档修改不发布。若当前版本已有标签则递增补丁版本；未使用的显式版本保持不变。Release 提供 main.js、manifest.json、styles.css 及构建证明。
 
-后续更新：修改 src/ 后提交并推送 main。指定版本时先修改 manifest.json，再运行 pnpm release:prepare。社区目录尚未收录时，GitHub 发布不等同于 Obsidian 市场可安装；社区收录后更新由 Obsidian 的正常检查更新流程处理，插件不会自行下载或安装代码。
+后续更新：修改 src/ 后提交并推送 main。指定版本时先修改 manifest.json，再运行 pnpm release:prepare。插件已收录于 [Obsidian 社区目录](https://community.obsidian.md/plugins/autocomplete)。更新由 Obsidian 的检查更新流程处理。发版后可在社区页面核对版本和自动扫描结果。
 
 ## 许可证与来源
 

@@ -143,10 +143,10 @@
   filter: invert(0.5) hue-rotate(180deg);
 }
 
-.various-complements__suggestion-item {
+.suggestion-item.various-complements__suggestion-item {
   display: flex;
   align-items: start;
-  padding-left: 30px !important;
+  padding-left: 30px;
 }
 
 .various-complements__suggestion-item > div {

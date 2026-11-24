@@ -1,31 +1,25 @@
-// @ts-nocheck
-// Because this code is originally javascript code.
-// noinspection FunctionTooLongJS,FunctionWithMultipleLoopsJS,EqualityComparisonWithCoercionJS,PointlessBooleanExpressionJS,JSDeclarationsAtScopeStart
-
 // TinySegmenter 0.1 -- Super compact Japanese tokenizer in Javascript
 // (c) 2008 Taku Kudo <taku@chasen.org>
 // TinySegmenter is freely distributable under the terms of a new BSD licence.
 // For details, see http://chasen.org/~taku/software/TinySegmenter/LICENCE.txt
 
-function TinySegmenter() {
-  var patterns = {
-    "[一二三四五六七八九十百千万億兆]": "M",
-    "[一-龠々〆ヵヶ]": "H",
-    "[ぁ-ん]": "I",
-    "[ァ-ヴーｱ-ﾝﾞｰ]": "K",
-    "[a-zA-Zａ-ｚＡ-Ｚ]": "A",
-    "[0-9０-９]": "N",
+export default class TinySegmenter {
+  private readonly chartype: ReadonlyArray<readonly [RegExp, string]> = [
+    [/[一二三四五六七八九十百千万億兆]/, "M"],
+    [/[一-龠々〆ヵヶ]/, "H"],
+    [/[ぁ-ん]/, "I"],
+    [/[ァ-ヴーｱ-ﾝﾞｰ]/, "K"],
+    [/[a-zA-Zａ-ｚＡ-Ｚ]/, "A"],
+    [/[0-9０-９]/, "N"],
+  ];
+  private readonly BIAS__ = -332;
+  private readonly BC1__: Readonly<Record<string, number>> = {
+    HH: 6,
+    II: 2461,
+    KH: 406,
+    OH: -1378,
   };
-  this.chartype_ = [];
-  for (var i in patterns) {
-    var regexp = new RegExp();
-    regexp.compile(i);
-    this.chartype_.push([regexp, patterns[i]]);
-  }
-
-  this.BIAS__ = -332;
-  this.BC1__ = { HH: 6, II: 2461, KH: 406, OH: -1378 };
-  this.BC2__ = {
+  private readonly BC2__: Readonly<Record<string, number>> = {
     AA: -3267,
     AI: 2744,
     AN: -878,
@@ -44,7 +38,7 @@ function TinySegmenter() {
     MK: 3334,
     OO: -2920,
   };
-  this.BC3__ = {
+  private readonly BC3__: Readonly<Record<string, number>> = {
     HH: 996,
     HI: 626,
     HK: -721,
@@ -57,9 +51,17 @@ function TinySegmenter() {
     OA: -1652,
     OH: 266,
   };
-  this.BP1__ = { BB: 295, OB: 304, OO: -125, UB: 352 };
-  this.BP2__ = { BO: 60, OO: -1762 };
-  this.BQ1__ = {
+  private readonly BP1__: Readonly<Record<string, number>> = {
+    BB: 295,
+    OB: 304,
+    OO: -125,
+    UB: 352,
+  };
+  private readonly BP2__: Readonly<Record<string, number>> = {
+    BO: 60,
+    OO: -1762,
+  };
+  private readonly BQ1__: Readonly<Record<string, number>> = {
     BHH: 1150,
     BHM: 1521,
     BII: -1158,
@@ -75,7 +77,7 @@ function TinySegmenter() {
     OKK: 904,
     OOO: 2965,
   };
-  this.BQ2__ = {
+  private readonly BQ2__: Readonly<Record<string, number>> = {
     BHH: 118,
     BHI: -1159,
     BHM: 466,
@@ -87,7 +89,7 @@ function TinySegmenter() {
     OIH: 153,
     UHI: -1146,
   };
-  this.BQ3__ = {
+  private readonly BQ3__: Readonly<Record<string, number>> = {
     BHH: -792,
     BHI: 2664,
     BII: -299,
@@ -105,7 +107,7 @@ function TinySegmenter() {
     OMH: -2402,
     OOO: 11699,
   };
-  this.BQ4__ = {
+  private readonly BQ4__: Readonly<Record<string, number>> = {
     BHH: -3895,
     BIH: 3761,
     BII: -4654,
@@ -118,7 +120,7 @@ function TinySegmenter() {
     OHK: -2036,
     ONN: -973,
   };
-  this.BW1__ = {
+  private readonly BW1__: Readonly<Record<string, number>> = {
     ",と": 660,
     ",同": 727,
     B1あ: 1404,
@@ -191,7 +193,7 @@ function TinySegmenter() {
     Ｂ１同: 542,
     "｣と": 1682,
   };
-  this.BW2__ = {
+  private readonly BW2__: Readonly<Record<string, number>> = {
     "..": -11822,
     11: -669,
     "――": -5730,
@@ -313,7 +315,7 @@ function TinySegmenter() {
     米国: -4268,
     "１１": -669,
   };
-  this.BW3__ = {
+  private readonly BW3__: Readonly<Record<string, number>> = {
     あた: -2194,
     あり: 719,
     ある: 3846,
@@ -429,7 +431,7 @@ function TinySegmenter() {
     社会: 2024,
     ｶ月: 990,
   };
-  this.TC1__ = {
+  private readonly TC1__: Readonly<Record<string, number>> = {
     AAA: 1093,
     HHH: 1029,
     HHM: 580,
@@ -443,7 +445,7 @@ function TinySegmenter() {
     MMH: 187,
     OOI: -1832,
   };
-  this.TC2__ = {
+  private readonly TC2__: Readonly<Record<string, number>> = {
     HHO: 2088,
     HII: -1023,
     HMM: -1154,
@@ -451,7 +453,7 @@ function TinySegmenter() {
     KKH: 703,
     OII: -2649,
   };
-  this.TC3__ = {
+  private readonly TC3__: Readonly<Record<string, number>> = {
     AAA: -294,
     HHH: 346,
     HHI: -341,
@@ -476,7 +478,7 @@ function TinySegmenter() {
     NNO: 662,
     OHO: -3393,
   };
-  this.TC4__ = {
+  private readonly TC4__: Readonly<Record<string, number>> = {
     HHH: -203,
     HHI: 1344,
     HHK: 365,
@@ -501,7 +503,7 @@ function TinySegmenter() {
     MMM: 661,
     MOM: 841,
   };
-  this.TQ1__ = {
+  private readonly TQ1__: Readonly<Record<string, number>> = {
     BHHH: -227,
     BHHI: 316,
     BHIH: -132,
@@ -516,8 +518,13 @@ function TinySegmenter() {
     OIHI: 200,
     OIIH: -68,
   };
-  this.TQ2__ = { BIHH: -1401, BIII: -1033, BKAK: -543, BOOO: -5591 };
-  this.TQ3__ = {
+  private readonly TQ2__: Readonly<Record<string, number>> = {
+    BIHH: -1401,
+    BIII: -1033,
+    BKAK: -543,
+    BOOO: -5591,
+  };
+  private readonly TQ3__: Readonly<Record<string, number>> = {
     BHHH: 478,
     BHHM: -1073,
     BHIH: 222,
@@ -539,7 +546,7 @@ function TinySegmenter() {
     OOHH: 110,
     OOII: -685,
   };
-  this.TQ4__ = {
+  private readonly TQ4__: Readonly<Record<string, number>> = {
     BHHH: -721,
     BHHM: -3604,
     BHII: -966,
@@ -557,8 +564,11 @@ function TinySegmenter() {
     OIII: -4007,
     OKAK: -8156,
   };
-  this.TW1__ = { につい: -4681, 東京都: 2026 };
-  this.TW2__ = {
+  private readonly TW1__: Readonly<Record<string, number>> = {
+    につい: -4681,
+    東京都: 2026,
+  };
+  private readonly TW2__: Readonly<Record<string, number>> = {
     ある程: -2049,
     いった: -1256,
     ころが: -2434,
@@ -576,7 +586,7 @@ function TinySegmenter() {
     対して: -2721,
     社会党: -3216,
   };
-  this.TW3__ = {
+  private readonly TW3__: Readonly<Record<string, number>> = {
     いただ: -1734,
     してい: 1314,
     として: -4314,
@@ -589,7 +599,7 @@ function TinySegmenter() {
     れから: -3752,
     十二月: -2287,
   };
-  this.TW4__ = {
+  private readonly TW4__: Readonly<Record<string, number>> = {
     "いう.": 8576,
     "いう。": 8576,
     からな: -2348,
@@ -603,10 +613,25 @@ function TinySegmenter() {
     ようと: -4258,
     よると: 5865,
   };
-  this.UC1__ = { A: 484, K: 93, M: 645, O: -505 };
-  this.UC2__ = { A: 819, H: 1059, I: 409, M: 3987, N: 5775, O: 646 };
-  this.UC3__ = { A: -1370, I: 2311 };
-  this.UC4__ = {
+  private readonly UC1__: Readonly<Record<string, number>> = {
+    A: 484,
+    K: 93,
+    M: 645,
+    O: -505,
+  };
+  private readonly UC2__: Readonly<Record<string, number>> = {
+    A: 819,
+    H: 1059,
+    I: 409,
+    M: 3987,
+    N: 5775,
+    O: 646,
+  };
+  private readonly UC3__: Readonly<Record<string, number>> = {
+    A: -1370,
+    I: 2311,
+  };
+  private readonly UC4__: Readonly<Record<string, number>> = {
     A: -2643,
     H: 1809,
     I: -1032,
@@ -615,12 +640,24 @@ function TinySegmenter() {
     N: 3876,
     O: 6646,
   };
-  this.UC5__ = { H: 313, I: -1238, K: -799, M: 539, O: -831 };
-  this.UC6__ = { H: -506, I: -253, K: 87, M: 247, O: -387 };
-  this.UP1__ = { O: -214 };
-  this.UP2__ = { B: 69, O: 935 };
-  this.UP3__ = { B: 189 };
-  this.UQ1__ = {
+  private readonly UC5__: Readonly<Record<string, number>> = {
+    H: 313,
+    I: -1238,
+    K: -799,
+    M: 539,
+    O: -831,
+  };
+  private readonly UC6__: Readonly<Record<string, number>> = {
+    H: -506,
+    I: -253,
+    K: 87,
+    M: 247,
+    O: -387,
+  };
+  private readonly UP1__: Readonly<Record<string, number>> = { O: -214 };
+  private readonly UP2__: Readonly<Record<string, number>> = { B: 69, O: 935 };
+  private readonly UP3__: Readonly<Record<string, number>> = { B: 189 };
+  private readonly UQ1__: Readonly<Record<string, number>> = {
     BH: 21,
     BI: -12,
     BK: -99,
@@ -631,8 +668,12 @@ function TinySegmenter() {
     OK: 410,
     OO: -2422,
   };
-  this.UQ2__ = { BH: 216, BI: 113, OK: 1759 };
-  this.UQ3__ = {
+  private readonly UQ2__: Readonly<Record<string, number>> = {
+    BH: 216,
+    BI: 113,
+    OK: 1759,
+  };
+  private readonly UQ3__: Readonly<Record<string, number>> = {
     BA: -479,
     BH: 42,
     BI: 1913,
@@ -643,7 +684,7 @@ function TinySegmenter() {
     OI: -827,
     ON: -3212,
   };
-  this.UW1__ = {
+  private readonly UW1__: Readonly<Record<string, number>> = {
     ",": 156,
     "、": 156,
     "「": -463,
@@ -683,7 +724,7 @@ function TinySegmenter() {
     "｢": -463,
     "･": -135,
   };
-  this.UW2__ = {
+  private readonly UW2__: Readonly<Record<string, number>> = {
     ",": -829,
     "、": -829,
     〇: 892,
@@ -792,7 +833,7 @@ function TinySegmenter() {
     ｶ: 306,
     ｷ: 568,
   };
-  this.UW3__ = {
+  private readonly UW3__: Readonly<Record<string, number>> = {
     ",": 4889,
     1: -800,
     "−": -1723,
@@ -1011,7 +1052,7 @@ function TinySegmenter() {
     ﾛ: 2201,
     ﾝ: 278,
   };
-  this.UW4__ = {
+  private readonly UW4__: Readonly<Record<string, number>> = {
     ",": 3930,
     ".": 3508,
     "―": -4841,
@@ -1233,7 +1274,7 @@ function TinySegmenter() {
     ﾙ: -856,
     ﾝ: -3637,
   };
-  this.UW5__ = {
+  private readonly UW5__: Readonly<Record<string, number>> = {
     ",": 465,
     ".": -299,
     1: -514,
@@ -1334,7 +1375,7 @@ function TinySegmenter() {
     ﾙ: 451,
     ﾝ: -343,
   };
-  this.UW6__ = {
+  private readonly UW6__: Readonly<Record<string, number>> = {
     ",": 227,
     ".": 808,
     1: -270,
@@ -1390,118 +1431,101 @@ function TinySegmenter() {
     ﾝ: -496,
   };
 
-  return this;
+  private characterType(unit: string): string {
+    return this.chartype.find(([pattern]) => pattern.test(unit))?.[1] ?? "O";
+  }
+
+  segment(input: string): string[] {
+    if (!input) {
+      return [];
+    }
+    const result: string[] = [];
+    const seg = ["B3", "B2", "B1"];
+    const ctype = ["O", "O", "O"];
+    // 上游按 UTF-16 单元分词，保持原有字符边界和结果。
+    for (const unit of input.split("")) {
+      seg.push(unit);
+      ctype.push(this.characterType(unit));
+    }
+    seg.push("E1");
+    seg.push("E2");
+    seg.push("E3");
+    ctype.push("O");
+    ctype.push("O");
+    ctype.push("O");
+    let word = seg[3];
+    let p1 = "U";
+    let p2 = "U";
+    let p3 = "U";
+    for (let i = 4; i < seg.length - 3; ++i) {
+      let score = this.BIAS__;
+      const w1 = seg[i - 3];
+      const w2 = seg[i - 2];
+      const w3 = seg[i - 1];
+      const w4 = seg[i];
+      const w5 = seg[i + 1];
+      const w6 = seg[i + 2];
+      const c1 = ctype[i - 3];
+      const c2 = ctype[i - 2];
+      const c3 = ctype[i - 1];
+      const c4 = ctype[i];
+      const c5 = ctype[i + 1];
+      const c6 = ctype[i + 2];
+      score += this.UP1__[p1] ?? 0;
+      score += this.UP2__[p2] ?? 0;
+      score += this.UP3__[p3] ?? 0;
+      score += this.BP1__[p1 + p2] ?? 0;
+      score += this.BP2__[p2 + p3] ?? 0;
+      score += this.UW1__[w1] ?? 0;
+      score += this.UW2__[w2] ?? 0;
+      score += this.UW3__[w3] ?? 0;
+      score += this.UW4__[w4] ?? 0;
+      score += this.UW5__[w5] ?? 0;
+      score += this.UW6__[w6] ?? 0;
+      score += this.BW1__[w2 + w3] ?? 0;
+      score += this.BW2__[w3 + w4] ?? 0;
+      score += this.BW3__[w4 + w5] ?? 0;
+      score += this.TW1__[w1 + w2 + w3] ?? 0;
+      score += this.TW2__[w2 + w3 + w4] ?? 0;
+      score += this.TW3__[w3 + w4 + w5] ?? 0;
+      score += this.TW4__[w4 + w5 + w6] ?? 0;
+      score += this.UC1__[c1] ?? 0;
+      score += this.UC2__[c2] ?? 0;
+      score += this.UC3__[c3] ?? 0;
+      score += this.UC4__[c4] ?? 0;
+      score += this.UC5__[c5] ?? 0;
+      score += this.UC6__[c6] ?? 0;
+      score += this.BC1__[c2 + c3] ?? 0;
+      score += this.BC2__[c3 + c4] ?? 0;
+      score += this.BC3__[c4 + c5] ?? 0;
+      score += this.TC1__[c1 + c2 + c3] ?? 0;
+      score += this.TC2__[c2 + c3 + c4] ?? 0;
+      score += this.TC3__[c3 + c4 + c5] ?? 0;
+      score += this.TC4__[c4 + c5 + c6] ?? 0;
+      //  score += (this.TC5__[c4 + c5 + c6] ?? 0);
+      score += this.UQ1__[p1 + c1] ?? 0;
+      score += this.UQ2__[p2 + c2] ?? 0;
+      score += this.UQ3__[p3 + c3] ?? 0;
+      score += this.BQ1__[p2 + c2 + c3] ?? 0;
+      score += this.BQ2__[p2 + c3 + c4] ?? 0;
+      score += this.BQ3__[p3 + c2 + c3] ?? 0;
+      score += this.BQ4__[p3 + c3 + c4] ?? 0;
+      score += this.TQ1__[p2 + c1 + c2 + c3] ?? 0;
+      score += this.TQ2__[p2 + c2 + c3 + c4] ?? 0;
+      score += this.TQ3__[p3 + c1 + c2 + c3] ?? 0;
+      score += this.TQ4__[p3 + c2 + c3 + c4] ?? 0;
+      const p = score > 0 ? "B" : "O";
+      if (score > 0) {
+        result.push(word);
+        word = "";
+      }
+      p1 = p2;
+      p2 = p3;
+      p3 = p;
+      word += seg[i];
+    }
+    result.push(word);
+
+    return result;
+  }
 }
-
-TinySegmenter.prototype.ctype_ = function (str) {
-  for (var i in this.chartype_) {
-    if (str.match(this.chartype_[i][0])) {
-      return this.chartype_[i][1];
-    }
-  }
-  return "O";
-};
-
-TinySegmenter.prototype.ts_ = function (v) {
-  if (v) {
-    return v;
-  }
-  return 0;
-};
-
-TinySegmenter.prototype.segment = function (input) {
-  if (input == null || input == undefined || input == "") {
-    return [];
-  }
-  var result = [];
-  var seg = ["B3", "B2", "B1"];
-  var ctype = ["O", "O", "O"];
-  var o = input.split("");
-  for (i = 0; i < o.length; ++i) {
-    seg.push(o[i]);
-    ctype.push(this.ctype_(o[i]));
-  }
-  seg.push("E1");
-  seg.push("E2");
-  seg.push("E3");
-  ctype.push("O");
-  ctype.push("O");
-  ctype.push("O");
-  var word = seg[3];
-  var p1 = "U";
-  var p2 = "U";
-  var p3 = "U";
-  for (var i = 4; i < seg.length - 3; ++i) {
-    var score = this.BIAS__;
-    var w1 = seg[i - 3];
-    var w2 = seg[i - 2];
-    var w3 = seg[i - 1];
-    var w4 = seg[i];
-    var w5 = seg[i + 1];
-    var w6 = seg[i + 2];
-    var c1 = ctype[i - 3];
-    var c2 = ctype[i - 2];
-    var c3 = ctype[i - 1];
-    var c4 = ctype[i];
-    var c5 = ctype[i + 1];
-    var c6 = ctype[i + 2];
-    score += this.ts_(this.UP1__[p1]);
-    score += this.ts_(this.UP2__[p2]);
-    score += this.ts_(this.UP3__[p3]);
-    score += this.ts_(this.BP1__[p1 + p2]);
-    score += this.ts_(this.BP2__[p2 + p3]);
-    score += this.ts_(this.UW1__[w1]);
-    score += this.ts_(this.UW2__[w2]);
-    score += this.ts_(this.UW3__[w3]);
-    score += this.ts_(this.UW4__[w4]);
-    score += this.ts_(this.UW5__[w5]);
-    score += this.ts_(this.UW6__[w6]);
-    score += this.ts_(this.BW1__[w2 + w3]);
-    score += this.ts_(this.BW2__[w3 + w4]);
-    score += this.ts_(this.BW3__[w4 + w5]);
-    score += this.ts_(this.TW1__[w1 + w2 + w3]);
-    score += this.ts_(this.TW2__[w2 + w3 + w4]);
-    score += this.ts_(this.TW3__[w3 + w4 + w5]);
-    score += this.ts_(this.TW4__[w4 + w5 + w6]);
-    score += this.ts_(this.UC1__[c1]);
-    score += this.ts_(this.UC2__[c2]);
-    score += this.ts_(this.UC3__[c3]);
-    score += this.ts_(this.UC4__[c4]);
-    score += this.ts_(this.UC5__[c5]);
-    score += this.ts_(this.UC6__[c6]);
-    score += this.ts_(this.BC1__[c2 + c3]);
-    score += this.ts_(this.BC2__[c3 + c4]);
-    score += this.ts_(this.BC3__[c4 + c5]);
-    score += this.ts_(this.TC1__[c1 + c2 + c3]);
-    score += this.ts_(this.TC2__[c2 + c3 + c4]);
-    score += this.ts_(this.TC3__[c3 + c4 + c5]);
-    score += this.ts_(this.TC4__[c4 + c5 + c6]);
-    //  score += this.ts_(this.TC5__[c4 + c5 + c6]);
-    score += this.ts_(this.UQ1__[p1 + c1]);
-    score += this.ts_(this.UQ2__[p2 + c2]);
-    score += this.ts_(this.UQ3__[p3 + c3]);
-    score += this.ts_(this.BQ1__[p2 + c2 + c3]);
-    score += this.ts_(this.BQ2__[p2 + c3 + c4]);
-    score += this.ts_(this.BQ3__[p3 + c2 + c3]);
-    score += this.ts_(this.BQ4__[p3 + c3 + c4]);
-    score += this.ts_(this.TQ1__[p2 + c1 + c2 + c3]);
-    score += this.ts_(this.TQ2__[p2 + c2 + c3 + c4]);
-    score += this.ts_(this.TQ3__[p3 + c1 + c2 + c3]);
-    score += this.ts_(this.TQ4__[p3 + c2 + c3 + c4]);
-    var p = "O";
-    if (score > 0) {
-      result.push(word);
-      word = "";
-      p = "B";
-    }
-    p1 = p2;
-    p2 = p3;
-    p3 = p;
-    word += seg[i];
-  }
-  result.push(word);
-
-  return result;
-};
-
-export default TinySegmenter;

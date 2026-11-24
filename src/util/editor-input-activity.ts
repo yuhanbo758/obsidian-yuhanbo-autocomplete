@@ -3,7 +3,7 @@ export class EditorInputActivity {
   private lastInput = -Infinity;
   private compositionTarget: object | null = null;
   private endedCompositionTargets = new WeakSet<object>();
-  private timer: ReturnType<typeof setTimeout> | undefined;
+  private timer: ReturnType<typeof window.setTimeout> | undefined;
   private waiters = new Set<(ready: boolean) => void>();
   private disposed = false;
 
@@ -64,11 +64,11 @@ export class EditorInputActivity {
   }
 
   private schedule(): void {
-    clearTimeout(this.timer);
+    window.clearTimeout(this.timer);
     this.timer = undefined;
     if (this.disposed || this.composing || this.waiters.size === 0) return;
     const remaining = this.quietMilliseconds - (this.now() - this.lastInput);
-    this.timer = setTimeout(
+    this.timer = window.setTimeout(
       () => {
         this.timer = undefined;
         if (this.composing) return;
@@ -84,18 +84,19 @@ export class EditorInputActivity {
     this.disposed = true;
     this.compositionTarget = null;
     this.endedCompositionTargets = new WeakSet();
-    clearTimeout(this.timer);
+    window.clearTimeout(this.timer);
     this.timer = undefined;
     this.waiters.forEach((resolve) => resolve(false));
     this.waiters.clear();
   }
 }
 
-export function isEditorComposing(editor?: {
-  cm?: { composing?: boolean; compositionStarted?: boolean };
-}): boolean {
+export function isEditorComposing(editor?: object): boolean {
+  const cm = editor && "cm" in editor ? editor.cm : undefined;
+  if (!cm || typeof cm !== "object") return false;
   // CodeMirror 的 composing 在首次文档变化前为 false，不能用于判断组词起点。
   return (
-    editor?.cm?.compositionStarted === true || editor?.cm?.composing === true
+    ("compositionStarted" in cm && cm.compositionStarted === true) ||
+    ("composing" in cm && cm.composing === true)
   );
 }

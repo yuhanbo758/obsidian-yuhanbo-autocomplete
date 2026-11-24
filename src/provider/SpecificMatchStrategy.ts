@@ -18,7 +18,7 @@ type Handler = (
   },
 ) => Word[];
 
-const neverUsedHandler = (..._args: any[]) => [];
+const neverUsedHandler: Handler = () => [];
 
 export class SpecificMatchStrategy {
   private static readonly _values: SpecificMatchStrategy[] = [];

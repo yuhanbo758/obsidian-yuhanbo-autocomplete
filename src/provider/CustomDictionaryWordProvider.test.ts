@@ -1,8 +1,6 @@
 import { expect, jest, test } from "@jest/globals";
-import { Notice } from "obsidian";
 import { BUILTIN_WORDS } from "../dictionary/builtin-words";
 import { ColumnDelimiter } from "../option/ColumnDelimiter";
-import { CustomDictionaryWordProvider } from "./CustomDictionaryWordProvider";
 type App = import("obsidian").App;
 type AppHelper = import("../app-helper").AppHelper;
 
@@ -23,6 +21,11 @@ jest.mock(
     virtual: true,
   },
 );
+
+const { Notice } = jest.requireMock<typeof import("obsidian")>("obsidian");
+const { CustomDictionaryWordProvider } = jest.requireActual<
+  typeof import("./CustomDictionaryWordProvider")
+>("./CustomDictionaryWordProvider");
 
 test("自定义同名词覆盖内置插入内容，默认词库不需要网络", async () => {
   const adapter = {
@@ -126,4 +129,33 @@ test("卸载后异步读取失败不再弹出过期通知", async () => {
   reject(new Error("late error"));
   await pending;
   expect(notice.calls).toBe(0);
+});
+
+test("无效的 JSON 词条会报告错误，后续有效词库仍可索引", async () => {
+  const adapter = {
+    read: async (path: string) =>
+      path === "invalid.json"
+        ? JSON.stringify({ words: [{ value: 123, aliases: ["bad"] }] })
+        : JSON.stringify({ words: [{ value: "测试词条", aliases: ["别名"] }] }),
+  };
+  const provider = new CustomDictionaryWordProvider(
+    { vault: { adapter } } as unknown as App,
+    {} as AppHelper,
+  );
+  provider.setSettings(
+    ["invalid.json", "valid.json"],
+    ColumnDelimiter.TAB,
+    null,
+  );
+  const notice = Notice as unknown as { calls: number };
+  notice.calls = 0;
+  await provider.refreshCustomWords({
+    builtin: false,
+    regexp: "",
+    makeSynonymAboutEmoji: false,
+    makeSynonymAboutAccentsDiacritics: false,
+  });
+  expect(notice.calls).toBe(1);
+  expect(provider.wordCount).toBe(1);
+  expect(provider.wordByValue["测试词条"].aliases).toEqual(["别名"]);
 });

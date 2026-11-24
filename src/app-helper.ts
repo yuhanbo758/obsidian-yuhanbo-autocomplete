@@ -4,9 +4,11 @@ import {
   type EditorPosition,
   MarkdownView,
   normalizePath,
+  Notice,
   parseFrontMatterAliases,
   parseFrontMatterStringArray,
   parseFrontMatterTags,
+  Platform,
   TFile,
   Vault,
 } from "obsidian";
@@ -14,7 +16,6 @@ import { isEditorComposing } from "./util/editor-input-activity";
 import { isEOTinCodeBlock, isInsideInlineCode } from "./util/strings";
 
 interface UnsafeAppInterface {
-  isMobile: boolean;
   vault: Vault & {
     config: {
       spellcheckDictionary?: string[];
@@ -30,7 +31,7 @@ export class AppHelper {
   private unsafeApp: App & UnsafeAppInterface;
 
   constructor(app: App) {
-    this.unsafeApp = app as any;
+    this.unsafeApp = app as App & UnsafeAppInterface;
   }
 
   async exists(path: string): Promise<boolean> {
@@ -183,15 +184,14 @@ export class AppHelper {
     );
 
     if (markdownLink.startsWith("[[")) {
-      const text = markdownLink.matchAll(/^\[\[(?<text>.+)]]$/g).next().value!
-        .groups?.text!; // dirty error handling
-      return { displayed: text, link: text };
-    } else {
-      const { displayed, link } = markdownLink
-        .matchAll(/^\[(?<displayed>.+)]\(\<?(?<link>.+)\.md\>?\)$/g)
-        .next().value!.groups!; // dirty error handling
-      return { displayed, link };
+      const wikiText = markdownLink.match(/^\[\[(?<text>.+)]]$/)?.groups?.text;
+      return wikiText ? { displayed: wikiText, link: wikiText } : null;
     }
+
+    const groups = markdownLink.match(
+      /^\[(?<displayed>.+)]\(<?(?<link>.+)\.md>?\)$/,
+    )?.groups;
+    return groups ? { displayed: groups.displayed, link: groups.link } : null;
   }
 
   linkText2Path(linkText: string): string | null {
@@ -250,28 +250,24 @@ export class AppHelper {
       return null;
     }
 
-    const abstractFile = this.unsafeApp.vault.getAbstractFileByPath(path);
-    if (!abstractFile) {
-      return null;
-    }
-
-    return abstractFile as TFile;
+    return this.unsafeApp.vault.getFileByPath(path);
   }
 
   openMarkdownFile(file: TFile, newLeaf: boolean, offset: number = 0) {
     const leaf = this.unsafeApp.workspace.getLeaf(newLeaf);
 
-    leaf.openFile(file).then(() => {
-      this.unsafeApp.workspace.setActiveLeaf(leaf, true, true);
-      const viewOfType =
-        this.unsafeApp.workspace.getActiveViewOfType(MarkdownView);
-      if (viewOfType) {
-        const editor = viewOfType.editor;
-        const pos = editor.offsetToPos(offset);
-        editor.setCursor(pos);
-        editor.scrollIntoView({ from: pos, to: pos }, true);
-      }
-    });
+    void leaf
+      .openFile(file)
+      .then(() => {
+        this.unsafeApp.workspace.setActiveLeaf(leaf, { focus: true });
+        if (leaf.view instanceof MarkdownView) {
+          const editor = leaf.view.editor;
+          const pos = editor.offsetToPos(offset);
+          editor.setCursor(pos);
+          editor.scrollIntoView({ from: pos, to: pos }, true);
+        }
+      })
+      .catch(() => new Notice(`无法打开：${file.path}`));
   }
 
   getCurrentFrontMatter(): string | null {
@@ -303,7 +299,7 @@ export class AppHelper {
     }
 
     const currentKeyLocation = keyLocations
-      .filter((x) => x.index! < currentOffset)
+      .filter((x) => x.index < currentOffset)
       .last();
     if (!currentKeyLocation) {
       return null;
@@ -318,13 +314,7 @@ export class AppHelper {
   isIMEOn(
     editor: Editor | undefined = this.getCurrentEditor() ?? undefined,
   ): boolean {
-    return isEditorComposing(
-      editor as
-        | (Editor & {
-            cm?: { composing?: boolean; compositionStarted?: boolean };
-          })
-        | undefined,
-    );
+    return isEditorComposing(editor);
   }
 
   /**
@@ -337,15 +327,17 @@ export class AppHelper {
       return null;
     }
 
-    const cm: any = (markdownView.editor as any).cm;
+    const { cm } = markdownView.editor as Editor & {
+      cm?: {
+        visibleRanges: ReadonlyArray<{ from: number; to: number }>;
+        state: { doc: { lineAt(offset: number): { number: number } } };
+      };
+    };
     if (!cm?.visibleRanges || !cm?.state?.doc) {
       return null;
     }
 
-    const visibleRanges = cm.visibleRanges as Array<{
-      from: number;
-      to: number;
-    }>;
+    const { visibleRanges } = cm;
     if (visibleRanges.length === 0) {
       return null;
     }
@@ -358,7 +350,7 @@ export class AppHelper {
   }
 
   isMobile(): boolean {
-    return this.unsafeApp.isMobile;
+    return Platform.isMobile;
   }
 
   async writeLog(log: string) {

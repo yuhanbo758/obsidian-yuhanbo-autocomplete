@@ -13,7 +13,7 @@ export function allNumbersOrFewSymbols(text: string): boolean {
 }
 
 export function allAlphabets(text: string): boolean {
-  return Boolean(text.match(/^[a-zA-Z0-9_\-]+$/));
+  return Boolean(text.match(/^[a-zA-Z0-9_-]+$/));
 }
 
 export function excludeEmoji(text: string): string {
@@ -40,7 +40,7 @@ export function removeFromPattern(
 
 export function normalizeAccentsDiacritics(text: string): string {
   // https://stackoverflow.com/questions/990904/remove-accents-diacritics-in-a-string-in-javascript
-  return text.replace(/[^\u0000-\u007E]/g, (x) => diacriticsMap[x] ?? x);
+  return text.replace(/[\u007F-\uFFFF]/g, (x) => diacriticsMap[x] ?? x);
 }
 
 export function synonymAliases(
@@ -171,12 +171,13 @@ export function* splitRaw(
   regexp: RegExp,
 ): IterableIterator<string> {
   let previousIndex = 0;
-  for (let r of text.matchAll(regexp)) {
-    if (previousIndex !== r.index!) {
-      yield text.slice(previousIndex, r.index!);
+  for (const match of text.matchAll(regexp)) {
+    const index = match.index ?? previousIndex;
+    if (previousIndex !== index) {
+      yield text.slice(previousIndex, index);
     }
-    yield text[r.index!];
-    previousIndex = r.index! + 1;
+    yield text[index];
+    previousIndex = index + 1;
   }
 
   if (previousIndex !== text.length) {

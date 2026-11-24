@@ -34,7 +34,7 @@ async function selectWithCustomAliasImpl(
     app: popup.app,
     title: "输入自定义别名",
     defaultValue: item.value,
-  }).open({ initialSelect: true });
+  }).ask({ initialSelect: true });
   if (!input) {
     return null;
   }
@@ -104,7 +104,7 @@ export async function selectWithCustomAliasAndAddToAliases(
   let updated = false;
   await popup.app.fileManager.processFrontMatter(
     markdownFile,
-    (frontmatter) => {
+    (frontmatter: Record<string, unknown>) => {
       const aliases = parseFrontMatterAliases(frontmatter) ?? [];
       if (!aliases.includes(input)) {
         frontmatter.aliases = [...aliases, input];
@@ -114,10 +114,18 @@ export async function selectWithCustomAliasAndAddToAliases(
   );
 
   if (updated) {
-    const refreshedRef = popup.app.metadataCache.on("changed", (f) => {
-      popup.refreshInternalLinkTokens();
+    const refreshAliases = () => {
+      window.clearTimeout(refreshTimeout);
       popup.app.metadataCache.offref(refreshedRef);
+      void popup
+        .refreshInternalLinkTokens()
+        .catch(() => new Notice("别名已保存，双链索引刷新失败。"));
+    };
+    const refreshedRef = popup.app.metadataCache.on("changed", (file) => {
+      if (file.path === markdownFile.path) refreshAliases();
     });
+    // 元数据事件可能已在写入结束前发出，定时回退同时负责释放监听。
+    const refreshTimeout = window.setTimeout(refreshAliases, 1000);
   }
 
   return item;

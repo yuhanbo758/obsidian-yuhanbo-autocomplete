@@ -47,7 +47,7 @@ export async function createTokenizer(
       return new ArabicTokenizer();
     case "japanese":
       return new JapaneseTokenizer();
-    case "chinese":
+    case "chinese": {
       if (!settings.cedictPath.trim()) {
         return ChineseTokenizer.create();
       }
@@ -59,6 +59,7 @@ export async function createTokenizer(
       }
       const dict = await app.vault.adapter.read(settings.cedictPath);
       return ChineseTokenizer.create(dict);
+    }
     case "korean":
       return new KoreanTokenizer();
   }

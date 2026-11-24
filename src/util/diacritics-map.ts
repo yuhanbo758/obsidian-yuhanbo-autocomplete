@@ -268,7 +268,7 @@ const defaultDiacriticsRemovalMap = [
   },
 ];
 
-const diacriticsMap: any = {};
+const diacriticsMap: Partial<Record<string, string>> = {};
 for (let i = 0; i < defaultDiacriticsRemovalMap.length; i++) {
   const letters = defaultDiacriticsRemovalMap[i].letters;
   for (let j = 0; j < letters.length; j++) {

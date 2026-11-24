@@ -85,7 +85,7 @@ export function judge(
   if (
     matched.type === "concrete_match" ||
     (matched.type === "fuzzy_match" &&
-      matched.score > options?.fuzzy?.minMatchScore!)
+      matched.score > (options?.fuzzy?.minMatchScore ?? Infinity))
   ) {
     if (
       queryStartWithUpper &&
@@ -130,7 +130,8 @@ export function judge(
     matchedAlias &&
     (matchedAlias.matched.type === "concrete_match" ||
       (matchedAlias.matched.type === "fuzzy_match" &&
-        matchedAlias.matched.score > options?.fuzzy?.minMatchScore!))
+        matchedAlias.matched.score >
+          (options?.fuzzy?.minMatchScore ?? Infinity)))
   ) {
     return {
       word: {
@@ -314,7 +315,7 @@ export function judgeByPartialMatch(
   if (
     startsWithMatched.type === "concrete_match" ||
     (startsWithMatched.type === "fuzzy_match" &&
-      startsWithMatched.score > options?.fuzzy?.minMatchScore!)
+      startsWithMatched.score > (options?.fuzzy?.minMatchScore ?? Infinity))
   ) {
     if (
       queryStartWithUpper &&
@@ -359,7 +360,8 @@ export function judgeByPartialMatch(
     startsWithAliasMatched &&
     (startsWithAliasMatched.matched.type === "concrete_match" ||
       (startsWithAliasMatched.matched.type === "fuzzy_match" &&
-        startsWithAliasMatched.matched.score > options?.fuzzy?.minMatchScore!))
+        startsWithAliasMatched.matched.score >
+          (options?.fuzzy?.minMatchScore ?? Infinity)))
   ) {
     return {
       word: {
@@ -378,7 +380,7 @@ export function judgeByPartialMatch(
     includesMatched &&
     (includesMatched.type === "concrete_match" ||
       (includesMatched.type === "fuzzy_match" &&
-        includesMatched.score > options?.fuzzy?.minMatchScore!))
+        includesMatched.score > (options?.fuzzy?.minMatchScore ?? Infinity)))
   ) {
     return {
       word: {
@@ -404,7 +406,8 @@ export function judgeByPartialMatch(
     matchedAliasIncluded &&
     (matchedAliasIncluded.matched.type === "concrete_match" ||
       (matchedAliasIncluded.matched.type === "fuzzy_match" &&
-        matchedAliasIncluded.matched.score > options?.fuzzy?.minMatchScore!))
+        matchedAliasIncluded.matched.score >
+          (options?.fuzzy?.minMatchScore ?? Infinity)))
   ) {
     return {
       word: {

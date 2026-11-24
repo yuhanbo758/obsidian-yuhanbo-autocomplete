@@ -27,7 +27,7 @@ export class ChineseTokenizer extends AbstractTokenizer {
           for (const match of content.matchAll(
             /[\u3400-\u9fff]|[a-zA-Z0-9_-]+|[^\u3400-\u9fffa-zA-Z0-9_-]/gu,
           ))
-            yield { text: match[0], offset: match.index! };
+            yield { text: match[0], offset: match.index };
         }
       };
     }

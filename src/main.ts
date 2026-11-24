@@ -59,11 +59,15 @@ export default class AutocompletePlugin extends Plugin {
       this.settings.showIndexingStatus,
       this.settings.showComplementAutomatically,
     );
-    this.statusBar.setOnClickStrategyListener(async () => {
-      await this.settingTab.toggleMatchStrategy();
+    this.statusBar.setOnClickStrategyListener(() => {
+      void this.settingTab.toggleMatchStrategy().catch(() => {
+        new Notice("匹配方式保存失败，请重试。");
+      });
     });
-    this.statusBar.setOnClickComplementAutomatically(async () => {
-      await this.settingTab.toggleComplementAutomatically();
+    this.statusBar.setOnClickComplementAutomatically(() => {
+      void this.settingTab.toggleComplementAutomatically().catch(() => {
+        new Notice("自动补全设置保存失败，请重试。");
+      });
     });
 
     const debouncedSaveData = debounce(async () => {
@@ -238,7 +242,8 @@ export default class AutocompletePlugin extends Plugin {
           const content = contentFor(event);
           if (!content) return;
           this.inputActivity.markInput();
-          const isComposing = (event as InputEvent).isComposing === true;
+          const isComposing =
+            "isComposing" in event && event.isComposing === true;
           if (!isComposing) this.inputActivity.endComposition(content);
           if (!isComposing || this.inputActivity.hasEndedComposition(content))
             this.suggester?.resumeAfterComposition();
@@ -267,7 +272,7 @@ export default class AutocompletePlugin extends Plugin {
           this.inputActivity.endComposition(),
         );
     };
-    attach(document);
+    attach(this.app.workspace.containerEl.ownerDocument);
     this.app.workspace.iterateAllLeaves((leaf) =>
       attach(leaf.view.containerEl.ownerDocument),
     );
@@ -318,10 +323,10 @@ export default class AutocompletePlugin extends Plugin {
       await this.suggester.refreshCustomDictionaryTokens();
     }
     if (needUpdateTokens.internalLink) {
-      this.suggester.refreshInternalLinkTokens();
+      await this.suggester.refreshInternalLinkTokens();
     }
     if (needUpdateTokens.frontMatter) {
-      this.suggester.refreshFrontMatterTokens();
+      await this.suggester.refreshFrontMatterTokens();
     }
     if (needUpdateTokens.intelligentSuggestionPrioritization) {
       await this.suggester.refreshIntelligentSuggestionPrioritization();
@@ -340,7 +345,7 @@ export default class AutocompletePlugin extends Plugin {
     const modal = new CustomDictionaryWordAddModal(
       this.app,
       provider.editablePaths,
-      selectedWord,
+      selectedWord ?? "",
       this.settings.delimiterToDivideSuggestionsForDisplayFromInsertion,
       async (dictionaryPath, _word) => {
         // TODO: If support for JSON, this implementation doesn't work correctly

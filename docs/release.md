@@ -4,4 +4,4 @@ Push plugin code to main, or manually run the Auto release Obsidian plugin workf
 
 If the manifest version already exists as a tag or release, the patch version increases automatically. An unused explicit version is preserved. Documentation-only changes do not trigger releases. The plugin never updates itself; after community admission, users use the normal Obsidian update UI.
 
-This derived plugin currently lacks the publicly verifiable upstream author permission required for community admission. GitHub releases must not be described as community publication.
+The original author granted [public permission](https://github.com/tadashi-aikawa/obsidian-various-complements-plugin/issues/388#issuecomment-6891400600). The plugin is [listed in the Obsidian Community directory](https://community.obsidian.md/plugins/autocomplete). After each release, verify that the directory has scanned the intended version.

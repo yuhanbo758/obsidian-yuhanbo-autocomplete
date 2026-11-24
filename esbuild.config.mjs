@@ -1,11 +1,9 @@
-import builtins from "builtin-modules";
+import { builtinModules } from "node:module";
 import chokidar from "chokidar";
 import esbuild from "esbuild";
-import esbuildSvelte from "esbuild-svelte";
 import fs from "fs";
 import path from "path";
 import process from "process";
-import sveltePreprocess from "svelte-preprocess";
 
 const VAULT_DIR = process.env.OBSIDIAN_TEST_VAULT;
 const FILES = ["main.js", "manifest.json", "styles.css"];
@@ -21,12 +19,6 @@ if you want to view the source, please visit the github repository of this plugi
 const prod = process.argv[2] === "production";
 
 const context = await esbuild.context({
-  plugins: [
-    esbuildSvelte({
-      compilerOptions: { css: "injected" },
-      preprocess: sveltePreprocess(),
-    }),
-  ],
   banner: {
     js: banner,
   },
@@ -46,7 +38,7 @@ const context = await esbuild.context({
     "@lezer/common",
     "@lezer/highlight",
     "@lezer/lr",
-    ...builtins,
+    ...builtinModules,
   ],
   format: "cjs",
   target: "es2018",

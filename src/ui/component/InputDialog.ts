@@ -2,7 +2,6 @@ import { App, Modal } from "obsidian";
 
 export class InputDialog extends Modal {
   inputEl!: HTMLInputElement;
-  promise!: Promise<string | null>;
   submitted = false;
 
   constructor(
@@ -33,10 +32,10 @@ export class InputDialog extends Modal {
    *   - Promise<""> if submitted empty string
    *   - Promise<null> if canceled
    */
-  open(args?: { initialSelect: boolean }): Promise<string | null> {
+  ask(args?: { initialSelect: boolean }): Promise<string | null> {
     super.open();
 
-    this.promise = new Promise<string | null>((resolve) => {
+    return new Promise<string | null>((resolve) => {
       const listener = (ev: KeyboardEvent) => {
         if (ev.isComposing) {
           return;
@@ -63,7 +62,5 @@ export class InputDialog extends Modal {
         this.inputEl.select();
       }
     });
-
-    return this.promise;
   }
 }

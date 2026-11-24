@@ -5,9 +5,9 @@ import { DefaultTokenizer } from "./DefaultTokenizer";
 type TokenType = "none" | "trim" | "korean" | "hanja" | "others";
 
 const INPUT_TRIM_CHAR_PATTERN =
-  /[\r\n\t\[\]$/:?!=()<>"',|;*~ `_“„«»‹›‚‘’”。、·ㆍ∼《》〈〉『』「」≪≫｢｣<>―～…]/;
+  /[\r\n\t[\]$/:?!=()<>"',|;*~ `_“„«»‹›‚‘’”。、·ㆍ∼《》〈〉『』「」≪≫｢｣<>―～…]/;
 const INDEXING_TRIM_CHAR_PATTERN =
-  /[\r\n\t\[\]/:?!=()<>"',|;*~ `_“„«»‹›‚‘’”。、·ㆍ∼《》〈〉『』「」≪≫｢｣<>―～…]/;
+  /[\r\n\t[\]/:?!=()<>"',|;*~ `_“„«»‹›‚‘’”。、·ㆍ∼《》〈〉『』「」≪≫｢｣<>―～…]/;
 
 const HANGUL_JAMO = "\u1100-\u11FF";
 const HANGUL_COMPATIBILITY_JAMO = "\u3130-\u318F";

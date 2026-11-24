@@ -1,4 +1,11 @@
-import { App, Notice, PluginSettingTab, Setting, SettingGroup } from "obsidian";
+import {
+  App,
+  Notice,
+  Platform,
+  PluginSettingTab,
+  Setting,
+  SettingGroup,
+} from "obsidian";
 import {
   SettingsSearchController,
   useFilterSetting,
@@ -14,7 +21,7 @@ import { TokenizeStrategy } from "../tokenizer/TokenizeStrategy";
 import { isPresent } from "../types";
 import { smartLineBreakSplit } from "../util/strings";
 import { label, localizedOptions } from "./labels";
-import { TextComponentEvent } from "./settings-helper";
+import { onTextChange } from "./settings-helper";
 
 export interface Settings {
   // general
@@ -343,7 +350,7 @@ export class VariousComplementsSettingTab extends PluginSettingTab {
       );
     });
 
-    const cedictDesc = document.createDocumentFragment();
+    const cedictDesc = containerEl.ownerDocument.createDocumentFragment();
     cedictDesc.append(
       createSpan({
         text: "可选：自定义 CC-CEDICT 中文分词词典路径；留空使用内置分词。词典可从",
@@ -361,7 +368,7 @@ export class VariousComplementsSettingTab extends PluginSettingTab {
         setting
           .setClass("yuhanbo-autocomplete-settings__nested")
           .addText((cb) => {
-            TextComponentEvent.onChange(cb, async (value) => {
+            onTextChange(cb, async (value) => {
               this.plugin.settings.cedictPath = value;
               void refreshCedictWarning();
               await this.plugin.saveSettings({
@@ -376,7 +383,7 @@ export class VariousComplementsSettingTab extends PluginSettingTab {
 
     let cedictExists = true;
     let latestCedictCheckId = 0;
-    const cedictWarningEl = containerEl.createEl("div", {
+    const cedictWarningEl = containerEl.createDiv({
       cls: "yuhanbo-autocomplete-settings__warning",
     });
     addConditionalElement(
@@ -425,7 +432,7 @@ export class VariousComplementsSettingTab extends PluginSettingTab {
       );
     });
     addConditionalElement(
-      containerEl.createEl("div", {
+      containerEl.createDiv({
         text: "部分匹配需要扫描更多词语；大型词库建议使用前缀匹配。",
         cls: "yuhanbo-autocomplete-settings__warning",
       }),
@@ -680,7 +687,7 @@ export class VariousComplementsSettingTab extends PluginSettingTab {
       "光标前的行内容匹配这些正则表达式时不触发补全，每行一个规则。",
       (setting) => {
         setting.addTextArea((tc) => {
-          const el = TextComponentEvent.onChange(
+          const el = onTextChange(
             tc.setValue(
               this.plugin.settings.patternsToSuppressTrigger.join("\n"),
             ),
@@ -702,7 +709,7 @@ export class VariousComplementsSettingTab extends PluginSettingTab {
       "短语完整匹配这些正则表达式时不触发补全，每行一个规则。",
       (setting) => {
         setting.addTextArea((tc) => {
-          const el = TextComponentEvent.onChange(
+          const el = onTextChange(
             tc.setValue(
               this.plugin.settings.phrasePatternsToSuppressTrigger.join("\n"),
             ),
@@ -841,7 +848,7 @@ export class VariousComplementsSettingTab extends PluginSettingTab {
     });
     ul.append(li);
 
-    const df = document.createDocumentFragment();
+    const df = containerEl.ownerDocument.createDocumentFragment();
     df.append(ul);
 
     group.addSetting((setting) => {
@@ -966,7 +973,7 @@ export class VariousComplementsSettingTab extends PluginSettingTab {
       "完整匹配这些正则表达式的词不进入候选，每行一个规则。",
       (setting) => {
         setting.addTextArea((tc) => {
-          const el = TextComponentEvent.onChange(
+          const el = onTextChange(
             tc.setValue(
               this.plugin.settings.excludeCurrentFileWordPatterns.join("\n"),
             ),
@@ -1029,7 +1036,7 @@ export class VariousComplementsSettingTab extends PluginSettingTab {
       "仅包含以这些路径开头的文件；每行一个，满足任意一个即可。留空表示全部。",
       (setting) => {
         setting.addTextArea((tac) => {
-          const el = TextComponentEvent.onChange(
+          const el = onTextChange(
             tac
               .setValue(
                 this.plugin.settings.includeCurrentVaultPathPrefixPatterns,
@@ -1053,7 +1060,7 @@ export class VariousComplementsSettingTab extends PluginSettingTab {
       "排除以这些路径开头的文件，每行一个。",
       (setting) => {
         setting.addTextArea((tac) => {
-          const el = TextComponentEvent.onChange(
+          const el = onTextChange(
             tac
               .setValue(
                 this.plugin.settings.excludeCurrentVaultPathPrefixPatterns,
@@ -1078,7 +1085,7 @@ export class VariousComplementsSettingTab extends PluginSettingTab {
       "每行一个规则，支持 **/attachments、**/*.png 等通配符。",
       (setting) => {
         setting.addTextArea((tac) => {
-          const el = TextComponentEvent.onChange(
+          const el = onTextChange(
             tac
               .setValue(
                 this.plugin.settings.excludeCurrentVaultPathGlobPatterns.join(
@@ -1100,7 +1107,7 @@ export class VariousComplementsSettingTab extends PluginSettingTab {
       { visible: isEnabled },
     );
     addConditionalElement(
-      containerEl.createEl("div", {
+      containerEl.createDiv({
         text: "通配规则会增加处理开销，能用路径前缀时优先使用路径前缀。",
         cls: "yuhanbo-autocomplete-settings__warning",
       }),
@@ -1150,7 +1157,7 @@ export class VariousComplementsSettingTab extends PluginSettingTab {
       "完整匹配这些正则表达式的词不进入候选，每行一个规则。",
       (setting) => {
         setting.addTextArea((tc) => {
-          const el = TextComponentEvent.onChange(
+          const el = onTextChange(
             tc.setValue(
               this.plugin.settings.excludeCurrentVaultWordPatterns.join("\n"),
             ),
@@ -1198,7 +1205,7 @@ export class VariousComplementsSettingTab extends PluginSettingTab {
       "每行填写一个相对于库根目录的路径或词库网址；填写网址后才会联网获取。",
       (setting) => {
         setting.addTextArea((tac) => {
-          const el = TextComponentEvent.onChange(
+          const el = onTextChange(
             tac
               .setValue(this.plugin.settings.customDictionaryPaths)
               .setPlaceholder("词库/常用短语.txt"),
@@ -1532,7 +1539,7 @@ export class VariousComplementsSettingTab extends PluginSettingTab {
       "排除以这些路径开头的文件，每行一个。",
       (setting) => {
         setting.addTextArea((tac) => {
-          const el = TextComponentEvent.onChange(
+          const el = onTextChange(
             tac
               .setValue(
                 this.plugin.settings.excludeInternalLinkPathPrefixPatterns,
@@ -1557,7 +1564,7 @@ export class VariousComplementsSettingTab extends PluginSettingTab {
       "每行一个规则，支持 **/attachments、**/*.png 等通配符。",
       (setting) => {
         setting.addTextArea((tac) => {
-          const el = TextComponentEvent.onChange(
+          const el = onTextChange(
             tac
               .setValue(
                 this.plugin.settings.excludeInternalLinkPathGlobPatterns.join(
@@ -1579,7 +1586,7 @@ export class VariousComplementsSettingTab extends PluginSettingTab {
       { visible: isEnabled },
     );
     addConditionalElement(
-      containerEl.createEl("div", {
+      containerEl.createDiv({
         text: "通配规则会增加处理开销，能用路径前缀时优先使用路径前缀。",
         cls: "yuhanbo-autocomplete-settings__warning",
       }),
@@ -1591,7 +1598,7 @@ export class VariousComplementsSettingTab extends PluginSettingTab {
       "笔记包含此名称的属性且值为 true 时，不建议指向该笔记的链接。",
       (setting) => {
         setting.addText((cb) => {
-          TextComponentEvent.onChange(cb, async (value) => {
+          onTextChange(cb, async (value) => {
             this.plugin.settings.frontMatterKeyForExclusionInternalLink = value;
             await this.plugin.saveSettings({ internalLink: true });
           }).setValue(
@@ -1606,7 +1613,7 @@ export class VariousComplementsSettingTab extends PluginSettingTab {
       "带有这些标签的笔记不进入链接建议，每行一个标签。",
       (setting) => {
         setting.addTextArea((tc) => {
-          const el = TextComponentEvent.onChange(
+          const el = onTextChange(
             tc.setValue(
               this.plugin.settings.tagsForExclusionInternalLink.join("\n"),
             ),
@@ -1737,7 +1744,7 @@ export class VariousComplementsSettingTab extends PluginSettingTab {
       `默认：${this.plugin.defaultHistoryPath}`,
       (setting) => {
         setting.addText((cb) => {
-          TextComponentEvent.onChange(cb, async (value) => {
+          onTextChange(cb, async (value) => {
             this.plugin.settings.intelligentSuggestionPrioritization.historyFilePath =
               value;
             await this.plugin.saveSettings({
@@ -1884,7 +1891,7 @@ export class VariousComplementsSettingTab extends PluginSettingTab {
     return JSON.stringify(
       {
         version: this.plugin.manifest.version,
-        mobile: (this.app as any).isMobile,
+        mobile: Platform.isMobile,
         settings: this.plugin.settings,
       },
       null,

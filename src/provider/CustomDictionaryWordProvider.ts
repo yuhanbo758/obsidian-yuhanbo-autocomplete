@@ -1,4 +1,4 @@
-import { App, FileSystemAdapter, Notice, requestUrl } from "obsidian";
+import { App, DataAdapter, Notice, requestUrl } from "obsidian";
 import type { AppHelper } from "../app-helper";
 import { BUILTIN_WORDS } from "../dictionary/builtin-words";
 import type { CustomDictionaryWord } from "../model/Word";
@@ -41,20 +41,57 @@ function unescape(value: string): string {
     .replace(/__VariousComplementsEscape__/g, "\\");
 }
 
+function isDictionaryObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return (
+    Array.isArray(value) &&
+    value.every((item: unknown) => typeof item === "string")
+  );
+}
+
+function isDictionaryWord(
+  value: unknown,
+): value is JsonDictionary["words"][number] {
+  return (
+    isDictionaryObject(value) &&
+    typeof value.value === "string" &&
+    (value.description == null || typeof value.description === "string") &&
+    (value.displayed == null || typeof value.displayed === "string") &&
+    (value.aliases == null || isStringArray(value.aliases))
+  );
+}
+
+function isJsonDictionary(value: unknown): value is JsonDictionary {
+  return (
+    isDictionaryObject(value) &&
+    (value.caretSymbol == null || typeof value.caretSymbol === "string") &&
+    (value.ignoreSpaceAfterCompletion == null ||
+      typeof value.ignoreSpaceAfterCompletion === "boolean") &&
+    Array.isArray(value.words) &&
+    value.words.every(isDictionaryWord)
+  );
+}
+
 function jsonToWords(
-  json: JsonDictionary,
+  json: unknown,
   path: string,
   systemCaretSymbol?: string,
 ): CustomDictionaryWord[] {
+  if (!isJsonDictionary(json)) {
+    throw new Error("JSON 词库格式不正确");
+  }
   return json.words.map((x) => ({
     value: x.displayed || x.value,
-    description: x.description,
-    aliases: x.aliases,
+    description: x.description ?? undefined,
+    aliases: x.aliases ?? undefined,
     type: "customDictionary",
     createdPath: path,
     insertedText: x.displayed ? x.value : undefined,
     caretSymbol: json.caretSymbol ?? systemCaretSymbol,
-    ignoreSpaceAfterCompletion: json.ignoreSpaceAfterCompletion,
+    ignoreSpaceAfterCompletion: json.ignoreSpaceAfterCompletion ?? undefined,
   }));
 }
 
@@ -127,18 +164,20 @@ export class CustomDictionaryWordProvider {
   private words: CustomDictionaryWord[] = [];
   private revision = 0;
   private settingsKey = "";
-  wordByValue: { [value: string]: CustomDictionaryWord } = Object.create(null);
+  wordByValue: { [value: string]: CustomDictionaryWord } = Object.create(
+    null,
+  ) as Record<string, CustomDictionaryWord>;
   wordsByFirstLetter: WordsByFirstLetter = {};
 
   private appHelper: AppHelper;
-  private fileSystemAdapter: FileSystemAdapter;
+  private fileSystemAdapter: DataAdapter;
   private paths: string[];
   private delimiter: ColumnDelimiter;
   private dividerForDisplay: string | null;
 
   constructor(app: App, appHelper: AppHelper) {
     this.appHelper = appHelper;
-    this.fileSystemAdapter = app.vault.adapter as FileSystemAdapter;
+    this.fileSystemAdapter = app.vault.adapter;
   }
 
   get editablePaths(): string[] {
@@ -149,14 +188,14 @@ export class CustomDictionaryWordProvider {
     path: string,
     option: Option,
   ): Promise<CustomDictionaryWord[]> {
-    let timer: ReturnType<typeof setTimeout> | undefined;
+    let timer: ReturnType<typeof window.setTimeout> | undefined;
     let contents: string;
     try {
       contents = isURL(path)
         ? await Promise.race([
             requestUrl({ url: path }).then((response) => response.text),
             new Promise<never>((_, reject) => {
-              timer = setTimeout(
+              timer = window.setTimeout(
                 () => reject(new Error("词库下载超时")),
                 15000,
               );
@@ -164,7 +203,7 @@ export class CustomDictionaryWordProvider {
           ])
         : await this.fileSystemAdapter.read(path);
     } finally {
-      clearTimeout(timer);
+      window.clearTimeout(timer);
     }
 
     const words = path.endsWith(".json")
@@ -204,7 +243,7 @@ export class CustomDictionaryWordProvider {
             accentsDiacritics: option.makeSynonymAboutAccentsDiacritics,
           }),
         );
-      } catch (e) {
+      } catch {
         if (revision !== this.revision) return;
         // noinspection ObjectAllocationIgnored
         new Notice(`词库加载失败：${path}。请检查路径、网络或词库格式。`, 0);
@@ -285,7 +324,10 @@ export class CustomDictionaryWordProvider {
   clearWords(): void {
     ++this.revision;
     this.words = [];
-    this.wordByValue = Object.create(null);
+    this.wordByValue = Object.create(null) as Record<
+      string,
+      CustomDictionaryWord
+    >;
     this.wordsByFirstLetter = {};
   }
 

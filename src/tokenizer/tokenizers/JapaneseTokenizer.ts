@@ -1,7 +1,6 @@
 import TinySegmenter from "../../external/tiny-segmenter";
 import { joinNumberWithSymbol } from "../../util/strings";
 import { AbstractTokenizer } from "./AbstractTokenizer";
-// @ts-ignore
 const segmenter = new TinySegmenter();
 
 function pickTokensAsJapanese(content: string, trimPattern: RegExp): string[] {
@@ -46,6 +45,6 @@ export class JapaneseTokenizer extends AbstractTokenizer {
   }
 
   shouldIgnoreOnCurrent(str: string): boolean {
-    return Boolean(str.match(/^[ぁ-んａ-ｚＡ-Ｚ。、ー　]*$/));
+    return Boolean(str.match(/^[ぁ-んａ-ｚＡ-Ｚ。、ー\u3000]*$/));
   }
 }
